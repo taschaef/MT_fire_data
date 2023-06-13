@@ -24479,31 +24479,44 @@ yearDropdown.insertBefore(allOption, yearDropdown.firstChild);
 
 // Event listener for year selection
 yearDropdown.addEventListener("change", function () {
-  var selectedYear = parseInt(yearDropdown.value);
-  var filteredFires = fireData.filter(function (fire) {
-    return fire.properties.FIRE_YEAR === selectedYear;
-  });
+  var selectedYear = yearDropdown.value;
 
   // Clear existing markers
   markerGroup.clearLayers();
 
-  // Add markers for filtered fires
-  filteredFires.forEach(function (fire) {
-    var lat = fire.geometry.coordinates[1];
-    var lng = fire.geometry.coordinates[0];
-    var fireYear = fire.properties.FIRE_YEAR;
-    var fireSize = fire.properties.FIRE_SIZE;
-    var causeDescr = fire.properties.STAT_CAUSE_DESCR;
-
-    // Create a marker with a popup containing fire information
-    var marker = L.marker([lat, lng]);
-    var popupContent = `
-      <b>Fire Information</b><br>
-      Year: ${fireYear}<br>
-      Size: ${fireSize} acres<br>
-      Cause: ${causeDescr}
-    `;
-    marker.bindPopup(popupContent);
-    marker.addTo(markerGroup); // Add marker to the markerGroup
-  });
+  // Filter and add markers based on the selected year
+  if (selectedYear === "All") {
+    // Add markers for all fires
+    fireData.forEach(function (fire) {
+      addMarker(fire);
+    });
+  } else {
+    // Add markers for fires of the selected year
+    var filteredFires = fireData.filter(function (fire) {
+      return fire.properties.FIRE_YEAR == selectedYear;
+    });
+    filteredFires.forEach(function (fire) {
+      addMarker(fire);
+    });
+  }
 });
+
+// Function to add marker for a fire object
+function addMarker(fire) {
+  var lat = fire.geometry.coordinates[1];
+  var lng = fire.geometry.coordinates[0];
+  var fireYear = fire.properties.FIRE_YEAR;
+  var fireSize = fire.properties.FIRE_SIZE;
+  var causeDescr = fire.properties.STAT_CAUSE_DESCR;
+
+  // Create a marker with a popup containing fire information
+  var marker = L.marker([lat, lng]);
+  var popupContent = `
+    <b>Fire Information</b><br>
+    Year: ${fireYear}<br>
+    Size: ${fireSize} acres<br>
+    Cause: ${causeDescr}
+  `;
+  marker.bindPopup(popupContent);
+  marker.addTo(markerGroup); // Add marker to the markerGroup
+}
